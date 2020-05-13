@@ -79,17 +79,21 @@ fn find_constants(member: &str) -> Vec<(char, &str)> {
 	constants
 }
 
-fn find_order1_terms(member: &str) {
-	// let chars: Vec<char> = member.chars().collect();
-	// let mut order1_terms: Vec<(char, &str)> = Vec::new();
+fn find_order1_terms(member: &str) -> Vec<(char, &str)> {
+	let chars: Vec<char> = member.chars().collect();
+	let mut order1_terms: Vec<(char, &str)> = Vec::new();
 
 	let re = Regex::new(r"\d+x").unwrap();
 
 	for mat in re.find_iter(member) {
-		println!("found : {}", mat.as_str());
+		if chars[mat.start() - 1] == '-' {
+			order1_terms.push(('-', mat.as_str()));
+		} else {
+			order1_terms.push(('+', mat.as_str()));
+		}
 	}
 
-	// order1_terms
+	order1_terms
 }
 
 fn main() {
@@ -103,9 +107,17 @@ fn main() {
 
 			let left_constants = find_constants(left_member);
 			let right_constants = find_constants(right_member);
-			println!("left : {:?}\nright : {:?}", left_constants, right_constants);
+			println!(
+				"left const : {:?}\nright const : {:?}",
+				left_constants, right_constants
+			);
 
-			find_order1_terms(left_member);
+			let left_order1 = find_order1_terms(left_member);
+			let right_order1 = find_order1_terms(right_member);
+			println!(
+				"left order1 : {:?}\nright order1 : {:?}",
+				left_order1, right_order1
+			);
 		}
 	}
 }
