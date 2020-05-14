@@ -25,7 +25,7 @@ fn is_valid(equation: &String) -> bool {
 
 	let re_sign = Regex::new(r"[+-]{2,}").unwrap();
 	let re_chars = Regex::new(r"[^-\+*/=x0-9()]").unwrap();
-	let re_main = Regex::new(r"([+-]?\d+|x)+=([+-]?\d+|x)+").unwrap();
+	let re_main = Regex::new(r"([+-]?\d+|x)+=([+-]?\d+|[+-]?x)+").unwrap();
 
 	if vec_equals.len() == 1
 		&& !re_chars.is_match(equation)
@@ -48,7 +48,7 @@ fn split_members(equation: &String) -> (&str, &str) {
 	(left_member, right_member)
 }
 
-fn find_constants(member: &str) -> Vec<(char, &str)> {
+fn find_const(member: &str) -> Vec<(char, &str)> {
 	let chars: Vec<char> = member.chars().collect();
 	let mut constants: Vec<(char, &str)> = Vec::new();
 
@@ -83,11 +83,15 @@ fn find_order1_terms(member: &str) -> Vec<(char, &str)> {
 	let chars: Vec<char> = member.chars().collect();
 	let mut order1_terms: Vec<(char, &str)> = Vec::new();
 
-	let re = Regex::new(r"\d+x").unwrap();
+	let re = Regex::new(r"\d*x").unwrap();
 
 	for mat in re.find_iter(member) {
-		if chars[mat.start() - 1] == '-' {
-			order1_terms.push(('-', mat.as_str()));
+		if mat.start() > 0 {
+			if chars[mat.start() - 1] == '-' {
+				order1_terms.push(('-', mat.as_str()));
+			} else {
+				order1_terms.push(('+', mat.as_str()));
+			}
 		} else {
 			order1_terms.push(('+', mat.as_str()));
 		}
@@ -95,6 +99,20 @@ fn find_order1_terms(member: &str) -> Vec<(char, &str)> {
 
 	order1_terms
 }
+
+fn isolate<'a>(dest: &mut Vec<(char, &'a str)>, src: &mut Vec<(char, &'a str)>) {
+	while !src.is_empty() {
+		let item = src.pop().unwrap();
+
+		if item.0 == '-' {
+			dest.push(('+', item.1));
+		} else {
+			dest.push(('-', item.1));
+		}
+	}
+}
+
+fn reduce(terms: &mut Vec<(char, &str)>) {}
 
 fn main() {
 	if args().len() != 2 {
@@ -105,19 +123,15 @@ fn main() {
 		if is_valid(&equation) {
 			let (left_member, right_member) = split_members(&equation);
 
-			let left_constants = find_constants(left_member);
-			let right_constants = find_constants(right_member);
-			println!(
-				"left const : {:?}\nright const : {:?}",
-				left_constants, right_constants
-			);
+			let mut right_order1 = find_order1_terms(right_member);
+			let mut left_order1 = find_order1_terms(left_member);
 
-			let left_order1 = find_order1_terms(left_member);
-			let right_order1 = find_order1_terms(right_member);
-			println!(
-				"left order1 : {:?}\nright order1 : {:?}",
-				left_order1, right_order1
-			);
+			isolate(&mut left_order1, &mut right_order1);
+
+			let mut left_const = find_const(left_member);
+			let mut right_const = find_const(right_member);
+
+			isolate(&mut right_const, &mut left_const);
 		}
 	}
 }
