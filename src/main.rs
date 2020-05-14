@@ -147,6 +147,28 @@ fn reduce(terms: &mut Vec<(char, &str)>) -> String {
 	}
 }
 
+fn approx_result(coef: &str, right: &str) -> f32 {
+	let coef_value = coef.parse::<f32>().unwrap();
+	let right_value = right.parse::<f32>().unwrap();
+
+	right_value / coef_value
+}
+
+fn final_calcul(left: String, right: String) {
+	if left.len() > 1 {
+		let mut final_result = String::from("x=");
+		final_result.push_str(right.as_str());
+		final_result.push('/');
+
+		let coef = left.get(0..left.len() - 1).unwrap();
+		final_result.push_str(coef);
+
+		let approx = approx_result(coef, right.as_str());
+
+		println!("solution : {}  ({})", final_result, approx);
+	}
+}
+
 fn main() {
 	if args().len() != 2 {
 		println!("usage : ./solve equation_without_spaces");
@@ -173,6 +195,10 @@ fn main() {
 			result_full.push_str(result_left.as_str());
 			result_full.push('=');
 			result_full.push_str(result_right.as_str());
+
+			println!("after reducing the members : {}", result_full);
+
+			final_calcul(result_left, result_right);
 		}
 	}
 }
