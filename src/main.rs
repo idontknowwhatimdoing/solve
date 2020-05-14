@@ -53,7 +53,6 @@ fn find_const(member: &str) -> Vec<(char, &str)> {
 	let mut constants: Vec<(char, &str)> = Vec::new();
 
 	let re = Regex::new(r"\d+").unwrap();
-
 	for mat in re.find_iter(member) {
 		if mat.end() < chars.len() {
 			if chars[mat.end()] == '+' || chars[mat.end()] == '-' {
