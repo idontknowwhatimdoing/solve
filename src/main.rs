@@ -18,6 +18,7 @@ fn is_valid(equation: &String) -> bool {
 			{
 				x_ok = true;
 			} else {
+				x_ok = false;
 				break;
 			}
 		}
