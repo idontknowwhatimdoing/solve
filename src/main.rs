@@ -112,7 +112,48 @@ fn isolate<'a>(dest: &mut Vec<(char, &'a str)>, src: &mut Vec<(char, &'a str)>) 
 	}
 }
 
-fn reduce(terms: &mut Vec<(char, &str)>) {}
+fn reduce(terms: &mut Vec<(char, &str)>) -> (char, String) {
+	let mut result = 0;
+	let is_order1 = terms[0].1.contains("x");
+
+	for term in terms {
+		if is_order1 {
+			if term.0 == '+' {
+				match term.1[0..term.1.len() - 1].parse::<i32>() {
+					Ok(value) => result += value,
+					Err(_) => result += 1,
+				}
+			} else {
+				match term.1[0..term.1.len() - 1].parse::<i32>() {
+					Ok(value) => result -= value,
+					Err(_) => result -= 1,
+				}
+			}
+		} else {
+			if term.0 == '+' {
+				result += term.1.parse::<i32>().unwrap();
+			} else {
+				result -= term.1.parse::<i32>().unwrap();
+			}
+		}
+	}
+
+	if is_order1 {
+		let mut result_str = result.to_string();
+		result_str.push('x');
+		if result < 0 {
+			('-', result_str)
+		} else {
+			('+', result_str)
+		}
+	} else {
+		if result < 0 {
+			('-', result.to_string())
+		} else {
+			('+', result.to_string())
+		}
+	}
+}
 
 fn main() {
 	if args().len() != 2 {
@@ -132,6 +173,11 @@ fn main() {
 			let mut right_const = find_const(right_member);
 
 			isolate(&mut right_const, &mut left_const);
+
+			println!("{:?}\n{:?}\n", left_order1, right_const);
+
+			reduce(&mut left_order1);
+			reduce(&mut right_const);
 		}
 	}
 }
