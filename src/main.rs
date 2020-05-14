@@ -165,7 +165,8 @@ fn final_calcul(left: String, right: String) {
 
 		let approx = approx_result(coef, right.as_str());
 
-		println!("solution : {}  ({})", final_result, approx);
+		println!("solution : {}", final_result);
+		println!("           x={}", approx);
 	}
 }
 
