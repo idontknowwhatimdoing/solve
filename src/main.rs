@@ -24,15 +24,16 @@ fn is_valid(equation: &String) -> bool {
 		}
 	}
 
-	let re_sign = Regex::new(r"[+-]{2,}").unwrap();
-	let re_chars = Regex::new(r"[^-\+*/=x0-9()]").unwrap();
+	let re_sign = Regex::new(r"[+-/]{2,}").unwrap();
+	let re_chars = Regex::new(r"[^-\+/=x0-9()]").unwrap();
 	let re_main = Regex::new(r"([+-]?\d+|[+-]?x)+=([+-]?\d+|[+-]?x)+").unwrap();
 
 	if vec_equals.len() == 1
 		&& !re_chars.is_match(equation)
 		&& !re_sign.is_match(equation)
 		&& re_main.is_match(equation)
-		&& x_ok
+		&& x_ok && !equation.starts_with('/')
+		&& !equation.ends_with('/')
 	{
 		true
 	} else {
