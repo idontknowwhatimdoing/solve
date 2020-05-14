@@ -112,6 +112,24 @@ fn isolate<'a>(dest: &mut Vec<(char, &'a str)>, src: &mut Vec<(char, &'a str)>) 
 	}
 }
 
+fn vecs_to_string(left: &Vec<(char, &str)>, right: &Vec<(char, &str)>) -> String {
+	let mut full = String::new();
+
+	for (c, s) in left {
+		full.push(*c);
+		full.push_str(s);
+		full.push(' ');
+	}
+	full.push_str("= ");
+	for (c, s) in right {
+		full.push(*c);
+		full.push_str(s);
+		full.push(' ');
+	}
+
+	full
+}
+
 fn reduce(terms: &mut Vec<(char, &str)>) -> String {
 	let mut result = 0;
 	let is_order1 = terms[0].1.contains("x");
@@ -156,7 +174,7 @@ fn approx_result(coef: &str, right: &str) -> f32 {
 
 fn final_calcul(left: String, right: String) {
 	if left.len() > 1 {
-		let mut final_result = String::from("x=");
+		let mut final_result = String::from("x = ");
 		final_result.push_str(right.as_str());
 		final_result.push('/');
 
@@ -166,7 +184,7 @@ fn final_calcul(left: String, right: String) {
 		let approx = approx_result(coef, right.as_str());
 
 		println!("solution : {}", final_result);
-		println!("           x={}", approx);
+		println!("       <=> x = {}\n", approx);
 	}
 }
 
@@ -189,15 +207,18 @@ fn main() {
 
 			isolate(&mut right_const, &mut left_const);
 
+			let full = vecs_to_string(&left_order1, &right_const);
+			println!("\nafter isolating variables and constants : {}\n", full);
+
 			let result_left = reduce(&mut left_order1);
 			let result_right = reduce(&mut right_const);
 
 			let mut result_full = String::new();
 			result_full.push_str(result_left.as_str());
-			result_full.push('=');
+			result_full.push_str(" = ");
 			result_full.push_str(result_right.as_str());
 
-			println!("after reducing the members : {}", result_full);
+			println!("after reducing the members : {}\n", result_full);
 
 			final_calcul(result_left, result_right);
 		}
