@@ -26,7 +26,7 @@ fn is_valid(equation: &String) -> bool {
 
 	let re_sign = Regex::new(r"[+-]{2,}").unwrap();
 	let re_chars = Regex::new(r"[^-\+*/=x0-9()]").unwrap();
-	let re_main = Regex::new(r"([+-]?\d+|x)+=([+-]?\d+|[+-]?x)+").unwrap();
+	let re_main = Regex::new(r"([+-]?\d+|[+-]?x)+=([+-]?\d+|[+-]?x)+").unwrap();
 
 	if vec_equals.len() == 1
 		&& !re_chars.is_match(equation)
@@ -179,6 +179,10 @@ fn final_calcul(left: String, right: String) {
 		final_result.push('/');
 
 		let coef = left.get(0..left.len() - 1).unwrap();
+		if coef == "0" {
+			println!("not solvable...\n");
+			return;
+		}
 		final_result.push_str(coef);
 
 		let approx = approx_result(coef, right.as_str());
@@ -206,6 +210,9 @@ fn main() {
 			let mut right_const = find_const(right_member);
 
 			isolate(&mut right_const, &mut left_const);
+			if right_const.is_empty() {
+				right_const.push(('+', "0"));
+			}
 
 			let full = vecs_to_string(&left_order1, &right_const);
 			println!("\nafter isolating variables and constants : {}\n", full);
