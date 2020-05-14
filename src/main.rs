@@ -112,7 +112,7 @@ fn isolate<'a>(dest: &mut Vec<(char, &'a str)>, src: &mut Vec<(char, &'a str)>) 
 	}
 }
 
-fn reduce(terms: &mut Vec<(char, &str)>) -> (char, String) {
+fn reduce(terms: &mut Vec<(char, &str)>) -> String {
 	let mut result = 0;
 	let is_order1 = terms[0].1.contains("x");
 
@@ -141,17 +141,9 @@ fn reduce(terms: &mut Vec<(char, &str)>) -> (char, String) {
 	if is_order1 {
 		let mut result_str = result.to_string();
 		result_str.push('x');
-		if result < 0 {
-			('-', result_str)
-		} else {
-			('+', result_str)
-		}
+		result_str
 	} else {
-		if result < 0 {
-			('-', result.to_string())
-		} else {
-			('+', result.to_string())
-		}
+		result.to_string()
 	}
 }
 
@@ -174,10 +166,13 @@ fn main() {
 
 			isolate(&mut right_const, &mut left_const);
 
-			println!("{:?}\n{:?}\n", left_order1, right_const);
+			let result_left = reduce(&mut left_order1);
+			let result_right = reduce(&mut right_const);
 
-			reduce(&mut left_order1);
-			reduce(&mut right_const);
+			let mut result_full = String::new();
+			result_full.push_str(result_left.as_str());
+			result_full.push('=');
+			result_full.push_str(result_right.as_str());
 		}
 	}
 }
