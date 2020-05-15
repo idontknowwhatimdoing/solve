@@ -1,73 +1,44 @@
-pub fn isolate<'a>(dest: &mut Vec<(char, &'a str)>, src: &mut Vec<(char, &'a str)>) {
-	while !src.is_empty() {
-		let item = src.pop().unwrap();
+use crate::term::Term;
 
-		if item.0 == '-' {
-			dest.push(('+', item.1));
+pub fn isolate(dest: &mut Vec<Term>, src: &mut Vec<Term>) {
+	while !src.is_empty() {
+		let term = src.pop().unwrap();
+
+		if term.value < 0 {
+			dest.push(Term::new(term.kind, term.value));
 		} else {
-			dest.push(('-', item.1));
+			dest.push(Term::new(term.kind, -term.value));
 		}
 	}
 }
 
-pub fn reduce(terms: &mut Vec<(char, &str)>) -> String {
+pub fn reduce(terms: &Vec<Term>) -> Term {
 	let mut result = 0;
-	let is_order1 = terms[0].1.contains("x");
 
 	for term in terms {
-		if is_order1 {
-			if term.0 == '+' {
-				match term.1[0..term.1.len() - 1].parse::<i32>() {
-					Ok(value) => result += value,
-					Err(_) => result += 1,
-				}
-			} else {
-				match term.1[0..term.1.len() - 1].parse::<i32>() {
-					Ok(value) => result -= value,
-					Err(_) => result -= 1,
-				}
-			}
+		if term.value < 0 {
+			result += term.value;
 		} else {
-			if term.0 == '+' {
-				result += term.1.parse::<i32>().unwrap();
-			} else {
-				result -= term.1.parse::<i32>().unwrap();
-			}
+			result -= term.value;
 		}
 	}
 
-	if is_order1 {
-		let mut result_str = result.to_string();
-		result_str.push('x');
-		result_str
-	} else {
-		result.to_string()
-	}
+	Term::new(terms[0].kind, result)
 }
 
-fn approx_result(coef: &str, right: &str) -> f32 {
-	let coef_value = coef.parse::<f32>().unwrap();
-	let right_value = right.parse::<f32>().unwrap();
+pub fn final_calcul(left: Term, right: Term) {
+	let mut final_result = String::from("x = ");
 
-	right_value / coef_value
-}
+	final_result.push_str(right.to_string().as_str());
+	final_result.push('/');
 
-pub fn final_calcul(left: String, right: String) {
-	if left.len() > 1 {
-		let mut final_result = String::from("x = ");
-		final_result.push_str(right.as_str());
-		final_result.push('/');
-
-		let coef = left.get(0..left.len() - 1).unwrap();
-		if coef == "0" {
-			println!("not solvable...\n");
-			return;
-		}
-		final_result.push_str(coef);
-
-		let approx = approx_result(coef, right.as_str());
-
-		println!("solution : {}", final_result);
-		println!("       <=> x = {}\n", approx);
+	if left.value == 0 {
+		println!("not solvable...\n");
+		return;
 	}
+
+	final_result.push_str(left.to_string().as_str());
+
+	println!("solution : {}", final_result);
+	println!("       <=> x = {}\n", right.value / left.value);
 }

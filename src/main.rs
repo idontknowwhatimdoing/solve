@@ -3,6 +3,7 @@ mod steps;
 mod term;
 
 use std::env::args;
+use term::{Kind, Term};
 
 fn user_guide() {
 	println!("\nyo wtf are you crazy\ngive me a real equation you stupid degenerate\n");
@@ -16,29 +17,27 @@ fn split_equation(equation: &String) -> (&str, &str) {
 	(left_member, right_member)
 }
 
-fn vecs_to_string(left: &Vec<(char, &str)>, right: &Vec<(char, &str)>) -> String {
+fn vecs_to_string(left: &Vec<Term>, right: &Vec<Term>) -> String {
 	let mut full = String::new();
 
-	for (c, s) in left {
-		full.push(*c);
-		full.push_str(s);
+	for term in left {
+		full.push_str(term.to_string().as_str());
 		full.push(' ');
 	}
 	full.push_str("= ");
-	for (c, s) in right {
-		full.push(*c);
-		full.push_str(s);
+	for term in right {
+		full.push_str(term.to_string().as_str());
 		full.push(' ');
 	}
 
 	full
 }
 
-fn concat_results(left: &String, right: &String) -> String {
+fn concat_results(left: &Term, right: &Term) -> String {
 	let mut full = String::new();
-	full.push_str(left.as_str());
+	full.push_str(left.to_string().as_str());
 	full.push_str(" = ");
-	full.push_str(right.as_str());
+	full.push_str(right.to_string().as_str());
 
 	full
 }
@@ -62,7 +61,7 @@ fn main() {
 
 			steps::isolate(&mut right_const, &mut left_const);
 			if right_const.is_empty() {
-				right_const.push(('+', "0"));
+				right_const.push(Term::new(Kind::Const, 0));
 			}
 
 			let full = vecs_to_string(&left_variables, &right_const);
