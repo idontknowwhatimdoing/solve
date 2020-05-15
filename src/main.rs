@@ -1,46 +1,7 @@
+mod check;
+
 use regex::Regex;
 use std::env::args;
-
-fn is_valid(equation: &String) -> bool {
-	let vec_equals: Vec<_> = equation.match_indices("=").collect();
-
-	let vec_x: Vec<char> = equation.chars().collect();
-	let mut x_ok = false;
-	for i in 0..vec_x.len() - 1 {
-		if vec_x[i] == 'x' {
-			if vec_x[i + 1] == '+'
-				|| vec_x[i + 1] == '-'
-				|| vec_x[i + 1] == '/'
-				|| vec_x[i + 1] == '*'
-				|| vec_x[i + 1] == '='
-				|| vec_x[i + 1] == '('
-				|| vec_x[i + 1] == ')'
-			{
-				x_ok = true;
-			} else {
-				x_ok = false;
-				break;
-			}
-		}
-	}
-
-	let re_sign = Regex::new(r"[+-/]{2,}").unwrap();
-	let re_chars = Regex::new(r"[^-\+/=x0-9()]").unwrap();
-	let re_main = Regex::new(r"([+-]?\d+|[+-]?x)+=([+-]?\d+|[+-]?x)+").unwrap();
-
-	if vec_equals.len() == 1
-		&& !re_chars.is_match(equation)
-		&& !re_sign.is_match(equation)
-		&& re_main.is_match(equation)
-		&& x_ok && !equation.starts_with('/')
-		&& !equation.ends_with('/')
-	{
-		true
-	} else {
-		println!("equation is not valid\nusage : ./solve equation_witout_spaces");
-		false
-	}
-}
 
 fn split_members(equation: &String) -> (&str, &str) {
 	let terms: Vec<&str> = equation.split("=").collect();
@@ -199,7 +160,7 @@ fn main() {
 	} else {
 		let equation = args().last().unwrap();
 
-		if is_valid(&equation) {
+		if check::is_valid(&equation) {
 			let (left_member, right_member) = split_members(&equation);
 
 			let mut right_order1 = find_order1_terms(right_member);
@@ -229,6 +190,8 @@ fn main() {
 			println!("after reducing the members : {}\n", result_full);
 
 			final_calcul(result_left, result_right);
+		} else {
+			println!("not valid sike");
 		}
 	}
 }
