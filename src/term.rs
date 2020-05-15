@@ -17,7 +17,18 @@ impl Term {
 	}
 
 	pub fn to_string(&self) -> String {
-		self.value.to_string()
+		if self.kind == Kind::Const {
+			self.value.to_string()
+		} else {
+			let mut ret = String::new();
+			ret.push_str(self.value.to_string().as_str());
+			ret.push('x');
+			ret
+		}
+	}
+
+	pub fn is_positive(&self) -> bool {
+		self.value >= 0
 	}
 }
 
@@ -59,7 +70,14 @@ pub fn get_variables(member: &str) -> Vec<Term> {
 
 	let re = Regex::new(r"\d*x").unwrap();
 	for mat in re.find_iter(member) {
-		let value = mat.as_str().parse::<i32>().unwrap();
+		let value;
+
+		if mat.as_str().len() == 1 {
+			value = 1;
+		} else {
+			let last = mat.as_str().len() - 1;
+			value = mat.as_str()[0..last].parse::<i32>().unwrap();
+		}
 
 		if mat.start() > 0 {
 			if chars[mat.start() - 1] == '-' {

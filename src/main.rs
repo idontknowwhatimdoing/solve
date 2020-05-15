@@ -21,11 +21,17 @@ fn vecs_to_string(left: &Vec<Term>, right: &Vec<Term>) -> String {
 	let mut full = String::new();
 
 	for term in left {
+		if term.is_positive() {
+			full.push('+');
+		}
 		full.push_str(term.to_string().as_str());
 		full.push(' ');
 	}
 	full.push_str("= ");
 	for term in right {
+		if term.is_positive() {
+			full.push('+');
+		}
 		full.push_str(term.to_string().as_str());
 		full.push(' ');
 	}
