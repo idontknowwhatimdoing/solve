@@ -1,7 +1,12 @@
 use regex::Regex;
 
 pub fn is_valid(equation: &String) -> bool {
-	main_check(&equation)
+	check_equals(&equation)
+		&& check_syntax(&equation)
+		&& !check_chars(&equation)
+		&& !check_operators(&equation)
+		&& check_x(&equation)
+		&& check_boundaries(&equation)
 }
 
 fn check_equals(equation: &String) -> bool {
@@ -55,13 +60,4 @@ fn check_syntax(equation: &String) -> bool {
 	let re_main = Regex::new(r"([+-]?\d+|[+-]?x)+=([+-]?\d+|[+-]?x)+").unwrap();
 
 	re_main.is_match(equation)
-}
-
-fn main_check(equation: &String) -> bool {
-	check_equals(&equation)
-		&& check_syntax(&equation)
-		&& !check_chars(&equation)
-		&& !check_operators(&equation)
-		&& check_x(&equation)
-		&& check_boundaries(&equation)
 }
