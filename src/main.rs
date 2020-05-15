@@ -34,6 +34,15 @@ fn vecs_to_string(left: &Vec<(char, &str)>, right: &Vec<(char, &str)>) -> String
 	full
 }
 
+fn concat_results(left: &String, right: &String) -> String {
+	let mut full = String::new();
+	full.push_str(left.as_str());
+	full.push_str(" = ");
+	full.push_str(right.as_str());
+
+	full
+}
+
 fn main() {
 	if args().len() != 2 {
 		user_guide();
@@ -62,11 +71,7 @@ fn main() {
 			let result_left = steps::reduce(&mut left_variables);
 			let result_right = steps::reduce(&mut right_const);
 
-			let mut result_full = String::new();
-			result_full.push_str(result_left.as_str());
-			result_full.push_str(" = ");
-			result_full.push_str(result_right.as_str());
-
+			let result_full = concat_results(&result_left, &result_right);
 			println!("after reducing the members : {}\n", result_full);
 
 			steps::final_calcul(result_left, result_right);
