@@ -1,13 +1,16 @@
-use crate::term::Term;
+use crate::term::{Kind, Term};
 
-pub fn isolate(dest: &mut Vec<Term>, src: &mut Vec<Term>) {
-	while !src.is_empty() {
-		let term = src.pop().unwrap();
-
-		if term.value > 0 {
-			dest.push(Term::new(term.kind, -term.value));
-		} else {
-			dest.push(Term::new(term.kind, term.value));
+pub fn isolate(left: &mut Vec<Term>, right: &mut Vec<Term>) {
+	for i in 0..right.len() {
+		if right[i].kind == Kind::Var {
+			right.pop();
+			left.push(Term::new(Kind::Var, -right[i].value));
+		}
+	}
+	for i in 0..left.len() {
+		if left[i].kind == Kind::Var {
+			left.pop();
+			right.push(Term::new(Kind::Const, -left[i].value));
 		}
 	}
 }

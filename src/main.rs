@@ -3,7 +3,7 @@ mod steps;
 mod term;
 
 use std::env::args;
-use term::{Kind, Term};
+use term::Term;
 
 fn user_guide() {
 	println!("\nyo wtf are you crazy\ngive me a real equation you stupid degenerate\n");
@@ -57,23 +57,17 @@ fn main() {
 		if check::is_valid(&equation) {
 			let (left_member, right_member) = split_equation(&equation);
 
-			let mut left_variables = term::get_variables(left_member);
-			let mut right_variables = term::get_variables(right_member);
-			let mut left_const = term::get_constants(left_member);
-			let mut right_const = term::get_constants(right_member);
+			let mut terms_left = term::get_terms(left_member);
+			let mut terms_right = term::get_terms(right_member);
 
-			steps::isolate(&mut left_variables, &mut right_variables);
-			steps::isolate(&mut right_const, &mut left_const);
-			if right_const.is_empty() {
-				right_const.push(Term::new(Kind::Const, 0));
-			}
+			steps::isolate(&mut terms_left, &mut terms_right);
 
 			println!(
 				"\nafter isolating variables and constants : {}\n",
-				vecs_to_string(&left_variables, &right_const)
+				vecs_to_string(&terms_left, &terms_right)
 			);
 
-			let (result_left, result_right) = steps::reduce(&left_variables, &right_const);
+			let (result_left, result_right) = steps::reduce(&terms_left, &terms_right);
 
 			println!(
 				"after reducing the members : {}\n",
