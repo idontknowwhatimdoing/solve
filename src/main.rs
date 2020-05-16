@@ -73,8 +73,7 @@ fn main() {
 			let full = vecs_to_string(&left_variables, &right_const);
 			println!("\nafter isolating variables and constants : {}\n", full);
 
-			let result_left = steps::reduce(&mut left_variables);
-			let result_right = steps::reduce(&mut right_const);
+			let (result_left, result_right) = steps::reduce(&left_variables, &right_const);
 
 			let result_full = concat_results(&result_left, &result_right);
 			println!("after reducing the members : {}\n", result_full);

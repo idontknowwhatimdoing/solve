@@ -12,15 +12,22 @@ pub fn isolate(dest: &mut Vec<Term>, src: &mut Vec<Term>) {
 	}
 }
 
-// 2 vecs with 1 call
-pub fn reduce(terms: &Vec<Term>) -> Term {
+pub fn reduce(left: &Vec<Term>, right: &Vec<Term>) -> (Term, Term) {
 	let mut result = 0;
 
-	for term in terms {
+	for term in left {
 		result += term.value;
 	}
+	let result_left = Term::new(left[0].kind, result);
 
-	Term::new(terms[0].kind, result)
+	result = 0;
+
+	for term in right {
+		result += term.value;
+	}
+	let result_right = Term::new(right[0].kind, result);
+
+	(result_left, result_right)
 }
 
 pub fn final_calcul(left: Term, right: Term) {

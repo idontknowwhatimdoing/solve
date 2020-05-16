@@ -40,6 +40,10 @@ pub fn get_constants(member: &str) -> Vec<Term> {
 	for mat in re.find_iter(member) {
 		let value = mat.as_str().parse::<i32>().unwrap();
 
+		if value == 0 {
+			continue;
+		}
+
 		if mat.end() < chars.len() {
 			if chars[mat.end()] == '+' || chars[mat.end()] == '-' {
 				if mat.start() == 0 {
@@ -77,6 +81,10 @@ pub fn get_variables(member: &str) -> Vec<Term> {
 		} else {
 			let last = mat.as_str().len() - 1;
 			value = mat.as_str()[0..last].parse::<i32>().unwrap();
+
+			if value == 0 {
+				continue;
+			}
 		}
 
 		if mat.start() > 0 {
