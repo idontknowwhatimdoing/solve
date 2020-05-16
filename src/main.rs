@@ -57,26 +57,28 @@ fn main() {
 		if check::is_valid(&equation) {
 			let (left_member, right_member) = split_equation(&equation);
 
-			let mut right_variables = term::get_variables(right_member);
 			let mut left_variables = term::get_variables(left_member);
-
-			steps::isolate(&mut left_variables, &mut right_variables);
-
+			let mut right_variables = term::get_variables(right_member);
 			let mut left_const = term::get_constants(left_member);
 			let mut right_const = term::get_constants(right_member);
 
+			steps::isolate(&mut left_variables, &mut right_variables);
 			steps::isolate(&mut right_const, &mut left_const);
 			if right_const.is_empty() {
 				right_const.push(Term::new(Kind::Const, 0));
 			}
 
-			let full = vecs_to_string(&left_variables, &right_const);
-			println!("\nafter isolating variables and constants : {}\n", full);
+			println!(
+				"\nafter isolating variables and constants : {}\n",
+				vecs_to_string(&left_variables, &right_const)
+			);
 
 			let (result_left, result_right) = steps::reduce(&left_variables, &right_const);
 
-			let result_full = concat_results(&result_left, &result_right);
-			println!("after reducing the members : {}\n", result_full);
+			println!(
+				"after reducing the members : {}\n",
+				concat_results(&result_left, &result_right)
+			);
 
 			steps::final_calcul(result_left, result_right);
 		} else {
