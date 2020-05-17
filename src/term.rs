@@ -30,6 +30,10 @@ impl Term {
 	pub fn is_positive(&self) -> bool {
 		self.value >= 0
 	}
+
+	pub fn is_var(&self) -> bool {
+		self.kind == Kind::Var
+	}
 }
 
 fn add_term(terms: &mut Vec<Term>, is_var: bool, is_pos: bool, value: i32) {
