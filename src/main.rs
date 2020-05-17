@@ -1,234 +1,82 @@
-use regex::Regex;
+mod check;
+mod steps;
+mod term;
+
 use std::env::args;
+use term::Term;
 
-fn is_valid(equation: &String) -> bool {
-	let vec_equals: Vec<_> = equation.match_indices("=").collect();
-
-	let vec_x: Vec<char> = equation.chars().collect();
-	let mut x_ok = false;
-	for i in 0..vec_x.len() - 1 {
-		if vec_x[i] == 'x' {
-			if vec_x[i + 1] == '+'
-				|| vec_x[i + 1] == '-'
-				|| vec_x[i + 1] == '/'
-				|| vec_x[i + 1] == '*'
-				|| vec_x[i + 1] == '='
-				|| vec_x[i + 1] == '('
-				|| vec_x[i + 1] == ')'
-			{
-				x_ok = true;
-			} else {
-				x_ok = false;
-				break;
-			}
-		}
-	}
-
-	let re_sign = Regex::new(r"[+-/]{2,}").unwrap();
-	let re_chars = Regex::new(r"[^-\+/=x0-9()]").unwrap();
-	let re_main = Regex::new(r"([+-]?\d+|[+-]?x)+=([+-]?\d+|[+-]?x)+").unwrap();
-
-	if vec_equals.len() == 1
-		&& !re_chars.is_match(equation)
-		&& !re_sign.is_match(equation)
-		&& re_main.is_match(equation)
-		&& x_ok && !equation.starts_with('/')
-		&& !equation.ends_with('/')
-	{
-		true
-	} else {
-		println!("equation is not valid\nusage : ./solve equation_witout_spaces");
-		false
-	}
+fn user_guide() {
+	println!("\nyo wtf are you crazy\ngive me a real equation you stupid degenerate\n");
 }
 
-fn split_members(equation: &String) -> (&str, &str) {
-	let terms: Vec<&str> = equation.split("=").collect();
-	let left_member = terms[0];
-	let right_member = terms[1];
+fn split_equation(equation: &String) -> (&str, &str) {
+	let members: Vec<&str> = equation.split("=").collect();
+	let left_member = members[0];
+	let right_member = members[1];
 
 	(left_member, right_member)
 }
 
-fn find_const(member: &str) -> Vec<(char, &str)> {
-	let chars: Vec<char> = member.chars().collect();
-	let mut constants: Vec<(char, &str)> = Vec::new();
-
-	let re = Regex::new(r"\d+").unwrap();
-	for mat in re.find_iter(member) {
-		if mat.end() < chars.len() {
-			if chars[mat.end()] == '+' || chars[mat.end()] == '-' {
-				if mat.start() == 0 {
-					constants.push(('+', mat.as_str()));
-				} else if chars[mat.start() - 1] == '-' {
-					constants.push(('-', mat.as_str()));
-				} else if chars[mat.start() - 1] == '+' {
-					constants.push(('+', mat.as_str()));
-				}
-			}
-		} else {
-			if mat.start() == 0 {
-				constants.push(('+', mat.as_str()));
-			} else if chars[mat.start() - 1] == '-' {
-				constants.push(('-', mat.as_str()));
-			} else if chars[mat.start() - 1] == '+' {
-				constants.push(('+', mat.as_str()));
-			}
-		}
-	}
-
-	constants
-}
-
-fn find_order1_terms(member: &str) -> Vec<(char, &str)> {
-	let chars: Vec<char> = member.chars().collect();
-	let mut order1_terms: Vec<(char, &str)> = Vec::new();
-
-	let re = Regex::new(r"\d*x").unwrap();
-
-	for mat in re.find_iter(member) {
-		if mat.start() > 0 {
-			if chars[mat.start() - 1] == '-' {
-				order1_terms.push(('-', mat.as_str()));
-			} else {
-				order1_terms.push(('+', mat.as_str()));
-			}
-		} else {
-			order1_terms.push(('+', mat.as_str()));
-		}
-	}
-
-	order1_terms
-}
-
-fn isolate<'a>(dest: &mut Vec<(char, &'a str)>, src: &mut Vec<(char, &'a str)>) {
-	while !src.is_empty() {
-		let item = src.pop().unwrap();
-
-		if item.0 == '-' {
-			dest.push(('+', item.1));
-		} else {
-			dest.push(('-', item.1));
-		}
-	}
-}
-
-fn vecs_to_string(left: &Vec<(char, &str)>, right: &Vec<(char, &str)>) -> String {
+fn vecs_to_string(left: &Vec<Term>, right: &Vec<Term>) -> String {
 	let mut full = String::new();
 
-	for (c, s) in left {
-		full.push(*c);
-		full.push_str(s);
+	for term in left {
+		if term.is_positive() {
+			full.push('+');
+		}
+		full.push_str(term.to_string().as_str());
 		full.push(' ');
 	}
 	full.push_str("= ");
-	for (c, s) in right {
-		full.push(*c);
-		full.push_str(s);
+	for term in right {
+		if term.is_positive() {
+			full.push('+');
+		}
+		full.push_str(term.to_string().as_str());
 		full.push(' ');
 	}
 
 	full
 }
 
-fn reduce(terms: &mut Vec<(char, &str)>) -> String {
-	let mut result = 0;
-	let is_order1 = terms[0].1.contains("x");
+fn concat_results(left: &Term, right: &Term) -> String {
+	let mut full = String::new();
+	full.push_str(left.to_string().as_str());
+	full.push_str(" = ");
+	full.push_str(right.to_string().as_str());
 
-	for term in terms {
-		if is_order1 {
-			if term.0 == '+' {
-				match term.1[0..term.1.len() - 1].parse::<i32>() {
-					Ok(value) => result += value,
-					Err(_) => result += 1,
-				}
-			} else {
-				match term.1[0..term.1.len() - 1].parse::<i32>() {
-					Ok(value) => result -= value,
-					Err(_) => result -= 1,
-				}
-			}
-		} else {
-			if term.0 == '+' {
-				result += term.1.parse::<i32>().unwrap();
-			} else {
-				result -= term.1.parse::<i32>().unwrap();
-			}
-		}
-	}
-
-	if is_order1 {
-		let mut result_str = result.to_string();
-		result_str.push('x');
-		result_str
-	} else {
-		result.to_string()
-	}
-}
-
-fn approx_result(coef: &str, right: &str) -> f32 {
-	let coef_value = coef.parse::<f32>().unwrap();
-	let right_value = right.parse::<f32>().unwrap();
-
-	right_value / coef_value
-}
-
-fn final_calcul(left: String, right: String) {
-	if left.len() > 1 {
-		let mut final_result = String::from("x = ");
-		final_result.push_str(right.as_str());
-		final_result.push('/');
-
-		let coef = left.get(0..left.len() - 1).unwrap();
-		if coef == "0" {
-			println!("not solvable...\n");
-			return;
-		}
-		final_result.push_str(coef);
-
-		let approx = approx_result(coef, right.as_str());
-
-		println!("solution : {}", final_result);
-		println!("       <=> x = {}\n", approx);
-	}
+	full
 }
 
 fn main() {
 	if args().len() != 2 {
-		println!("usage : ./solve equation_without_spaces");
+		user_guide();
 	} else {
 		let equation = args().last().unwrap();
 
-		if is_valid(&equation) {
-			let (left_member, right_member) = split_members(&equation);
+		if check::is_valid(&equation) {
+			let (left_member, right_member) = split_equation(&equation);
 
-			let mut right_order1 = find_order1_terms(right_member);
-			let mut left_order1 = find_order1_terms(left_member);
+			let mut terms_left = term::get_terms(left_member);
+			let mut terms_right = term::get_terms(right_member);
 
-			isolate(&mut left_order1, &mut right_order1);
+			steps::isolate(&mut terms_left, &mut terms_right);
 
-			let mut left_const = find_const(left_member);
-			let mut right_const = find_const(right_member);
+			println!(
+				"\nafter isolating variables and constants : {}\n",
+				vecs_to_string(&terms_left, &terms_right)
+			);
 
-			isolate(&mut right_const, &mut left_const);
-			if right_const.is_empty() {
-				right_const.push(('+', "0"));
-			}
+			let (result_left, result_right) = steps::reduce(&terms_left, &terms_right);
 
-			let full = vecs_to_string(&left_order1, &right_const);
-			println!("\nafter isolating variables and constants : {}\n", full);
+			println!(
+				"after reducing the members : {}\n",
+				concat_results(&result_left, &result_right)
+			);
 
-			let result_left = reduce(&mut left_order1);
-			let result_right = reduce(&mut right_const);
-
-			let mut result_full = String::new();
-			result_full.push_str(result_left.as_str());
-			result_full.push_str(" = ");
-			result_full.push_str(result_right.as_str());
-
-			println!("after reducing the members : {}\n", result_full);
-
-			final_calcul(result_left, result_right);
+			steps::final_calcul(result_left, result_right);
+		} else {
+			user_guide();
 		}
 	}
 }
