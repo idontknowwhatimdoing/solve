@@ -63,17 +63,12 @@ pub fn get_terms(member: &str) -> Vec<Term> {
 			} else {
 				let last = mat.as_str().len() - 1;
 				value = mat.as_str()[0..last].parse::<i32>().unwrap();
-
-				if value == 0 {
-					continue;
-				}
 			}
 		} else {
 			value = mat.as_str().parse::<i32>().unwrap();
-
-			if value == 0 {
-				continue;
-			}
+		}
+		if value == 0 {
+			continue;
 		}
 
 		let is_pos = if mat.start() > 0 && chars[mat.start() - 1] == '-' {
