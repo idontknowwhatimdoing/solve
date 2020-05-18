@@ -6,7 +6,6 @@ pub fn is_valid(equation: &String) -> bool {
 		&& !check_chars(&equation)
 		&& !check_operators(&equation)
 		&& check_x(&equation)
-		&& check_boundaries(&equation)
 }
 
 fn check_equals(equation: &String) -> bool {
@@ -54,10 +53,6 @@ fn check_chars(equation: &String) -> bool {
 	let re_chars = Regex::new(r"[^-\+/=x0-9()]").unwrap();
 
 	re_chars.is_match(equation)
-}
-
-fn check_boundaries(equation: &String) -> bool {
-	!(equation.starts_with('/') || equation.ends_with('/'))
 }
 
 fn check_syntax(equation: &String) -> bool {
