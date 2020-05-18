@@ -6,7 +6,7 @@ pub fn isolate(left: &mut Vec<Term>, right: &mut Vec<Term>) {
 	for i in 0..right.len() {
 		if right[i].is_var() {
 			left.push(Term::new(Kind::Var, -right[i].value));
-			remove_vec.push(i);
+			remove_vec.insert(0, i);
 		}
 	}
 	for i in &remove_vec {
@@ -18,7 +18,7 @@ pub fn isolate(left: &mut Vec<Term>, right: &mut Vec<Term>) {
 	for i in 0..left.len() {
 		if !left[i].is_var() {
 			right.push(Term::new(Kind::Const, -left[i].value));
-			remove_vec.push(i);
+			remove_vec.insert(0, i);
 		}
 	}
 	for i in &remove_vec {
