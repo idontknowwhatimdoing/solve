@@ -19,20 +19,24 @@ fn check_x(equation: &String) -> bool {
 	let vec_x: Vec<char> = equation.chars().collect();
 	let mut x_ok = false;
 
-	for i in 0..vec_x.len() - 1 {
+	for i in 0..vec_x.len() {
 		if vec_x[i] == 'x' {
-			if vec_x[i + 1] == '+'
-				|| vec_x[i + 1] == '-'
-				|| vec_x[i + 1] == '/'
-				|| vec_x[i + 1] == '*'
-				|| vec_x[i + 1] == '='
-				|| vec_x[i + 1] == '('
-				|| vec_x[i + 1] == ')'
-			{
-				x_ok = true;
+			if i < vec_x.len() - 1 {
+				if vec_x[i + 1] == '+'
+					|| vec_x[i + 1] == '-'
+					|| vec_x[i + 1] == '/'
+					|| vec_x[i + 1] == '*'
+					|| vec_x[i + 1] == '='
+					|| vec_x[i + 1] == '('
+					|| vec_x[i + 1] == ')'
+				{
+					x_ok = true;
+				} else {
+					x_ok = false;
+					break;
+				}
 			} else {
-				x_ok = false;
-				break;
+				x_ok = true;
 			}
 		}
 	}
