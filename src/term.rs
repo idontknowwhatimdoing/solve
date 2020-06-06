@@ -7,7 +7,7 @@ pub enum Kind {
 }
 
 pub struct Term {
-	pub kind: (Kind, Kind),
+	pub kind: (Kind, Kind), // 0 : num, 1 : den
 	pub num: i32,
 	pub den: i32,
 }
