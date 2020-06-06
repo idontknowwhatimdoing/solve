@@ -1,28 +1,17 @@
 use crate::term::{Kind, Term};
 
 pub fn isolate(left: &mut Vec<Term>, right: &mut Vec<Term>) {
-	let mut remove_vec = Vec::new();
-
 	for i in 0..right.len() {
 		if right[i].is_var() {
-			left.push(Term::new(Kind::Var, -right[i].value));
-			remove_vec.insert(0, i);
+			left.push(Term::new(right[i].kind, -right[i].num, right[i].den));
+			right.remove(i);
 		}
 	}
-	for i in &remove_vec {
-		right.remove(*i);
-	}
-
-	remove_vec.clear();
-
 	for i in 0..left.len() {
 		if !left[i].is_var() {
-			right.push(Term::new(Kind::Const, -left[i].value));
-			remove_vec.insert(0, i);
+			right.push(Term::new(left[i].kind, -left[i].num, left[i].den));
+			left.remove(i);
 		}
-	}
-	for i in &remove_vec {
-		left.remove(*i);
 	}
 }
 
