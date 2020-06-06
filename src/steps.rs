@@ -1,29 +1,42 @@
 use crate::term::{Kind, Term};
 
 pub fn isolate(left: &mut Vec<Term>, right: &mut Vec<Term>) {
-	let mut remove_vec = Vec::new();
+	// let mut remove_vec = Vec::new();
 
-	for i in 0..right.len() {
-		if right[i].is_var() {
-			left.push(Term::new(Kind::Var, -right[i].value));
-			remove_vec.insert(0, i);
+	for term in right.iter_mut() {
+		if term.is_var() {
+			left.push(Term::new((Kind::Var, Kind::Const), -term.num, term.den));
+			right.remove_item(term);
 		}
 	}
-	for i in &remove_vec {
-		right.remove(*i);
-	}
-
-	remove_vec.clear();
-
-	for i in 0..left.len() {
-		if !left[i].is_var() {
-			right.push(Term::new(Kind::Const, -left[i].value));
-			remove_vec.insert(0, i);
+	for term in left.iter_mut() {
+		if !term.is_var() {
+			right.push(Term::new((Kind::Const, Kind::Const), -term.num, term.den));
+			left.remove_item(term);
 		}
 	}
-	for i in &remove_vec {
-		left.remove(*i);
-	}
+
+	// for i in 0..right.len() {
+	// 	if right[i].is_var() {
+	// 		left.push(Term::new(Kind::Var, -right[i].value));
+	// 		remove_vec.insert(0, i);
+	// 	}
+	// }
+	// for i in &remove_vec {
+	// 	right.remove(*i);
+	// }
+
+	// remove_vec.clear();
+
+	// for i in 0..left.len() {
+	// 	if !left[i].is_var() {
+	// 		right.push(Term::new(Kind::Const, -left[i].value));
+	// 		remove_vec.insert(0, i);
+	// 	}
+	// }
+	// for i in &remove_vec {
+	// 	left.remove(*i);
+	// }
 }
 
 pub fn reduce(left: &Vec<Term>, right: &Vec<Term>) -> (Term, Term) {

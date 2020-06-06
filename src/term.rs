@@ -6,6 +6,7 @@ pub enum Kind {
 	Var,
 }
 
+#[derive(PartialEq)]
 pub struct Term {
 	pub kind: (Kind, Kind), // 0 : num, 1 : den
 	pub num: i32,
