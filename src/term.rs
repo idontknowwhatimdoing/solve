@@ -47,6 +47,17 @@ impl Term {
 	pub fn is_var(&self) -> bool {
 		self.kind.0 == Kind::Var || self.kind.1 == Kind::Var
 	}
+
+	pub fn add(&self, other: &Term) -> Result<Term, &str> {
+		if self.is_var() && other.is_var() || !self.is_var() && !other.is_var() {
+			let num = self.num * other.den + other.num * self.den;
+			let den = self.den * other.den;
+
+			return Ok(Term::new((self.kind.0, other.kind.1), num, den));
+		}
+
+		Err("addition of non matching terms (i.e : add a variable and a constant).")
+	}
 }
 
 fn add_str(ret: &mut String, val: i32, is_var: bool) {

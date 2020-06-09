@@ -16,19 +16,21 @@ pub fn isolate(left: &mut Vec<Term>, right: &mut Vec<Term>) {
 }
 
 pub fn reduce(left: &Vec<Term>, right: &Vec<Term>) -> (Term, Term) {
-	let mut result = 0;
+	let mut result_num = 0;
+	let mut result_den = 0;
 
 	for term in left {
-		result += term.num;
+		result_num += term.num;
 	}
-	let result_left = Term::new(left[0].kind, result, 1);
+	let result_left = Term::new(left[0].kind, result_num, result_den);
 
-	result = 0;
+	result_num = 0;
+	result_den = 0;
 
 	for term in right {
-		result += term.num;
+		result_num += term.num;
 	}
-	let result_right = Term::new(right[0].kind, result, 1);
+	let result_right = Term::new((Kind::Const, Kind::Const), result_num, result_den);
 
 	(result_left, result_right)
 }
