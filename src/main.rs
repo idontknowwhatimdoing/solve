@@ -17,35 +17,15 @@ fn split_equation(equation: &String) -> (&str, &str) {
 	(left_member, right_member)
 }
 
-fn vecs_to_string(left: &Vec<Term>, right: &Vec<Term>) -> String {
-	let mut full = String::new();
-
+fn display_vecs(left: &Vec<Term>, right: &Vec<Term>) {
 	for term in left {
-		if term.is_positive() {
-			full.push('+');
-		}
-		full.push_str(term.to_string().as_str());
-		full.push(' ');
+		print!("{} ", *term);
 	}
-	full.push_str("= ");
+	print!("= ");
 	for term in right {
-		if term.is_positive() {
-			full.push('+');
-		}
-		full.push_str(term.to_string().as_str());
-		full.push(' ');
+		print!("{} ", *term);
 	}
-
-	full
-}
-
-fn concat_results(left: &Term, right: &Term) -> String {
-	let mut full = String::new();
-	full.push_str(left.to_string().as_str());
-	full.push_str(" = ");
-	full.push_str(right.to_string().as_str());
-
-	full
+	println!("\n");
 }
 
 fn main() {
@@ -62,16 +42,14 @@ fn main() {
 
 			steps::isolate(&mut terms_left, &mut terms_right);
 
-			println!(
-				"\nafter isolating variables and constants : {}\n",
-				vecs_to_string(&terms_left, &terms_right)
-			);
+			println!("\nafter isolating variables and constants :");
+			display_vecs(&terms_left, &terms_right);
 
 			let (result_left, result_right) = steps::reduce(&terms_left, &terms_right);
 
 			println!(
-				"after reducing the members : {}\n",
-				concat_results(&result_left, &result_right)
+				"after reducing the members : {} = {}\n",
+				result_left, result_right
 			);
 
 			steps::final_calcul(result_left, result_right);
