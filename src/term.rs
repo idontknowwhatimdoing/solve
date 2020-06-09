@@ -1,4 +1,5 @@
 use regex::Regex;
+use std::fmt::{Display, Formatter};
 
 #[derive(PartialEq, Copy, Clone)]
 pub enum Kind {
@@ -6,7 +7,6 @@ pub enum Kind {
 	Var,
 }
 
-#[derive(PartialEq)]
 pub struct Term {
 	pub kind: (Kind, Kind), // 0 : num, 1 : den
 	pub num: i32,
@@ -57,6 +57,20 @@ impl Term {
 		}
 
 		Err("addition of non matching terms (i.e : add a variable and a constant).")
+	}
+}
+
+impl Display for Term {
+	fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+		if !self.is_var() {
+			write!(f, "{}/{}", self.num, self.den)
+		} else if self.kind.0 == Kind::Var && self.kind.1 == Kind::Const {
+			write!(f, "{}x/{}", self.num, self.den)
+		} else if self.kind.0 == Kind::Const && self.kind.1 == Kind::Var {
+			write!(f, "{}/{}x", self.num, self.den)
+		} else {
+			write!(f, "{}x/{}x", self.num, self.den)
+		}
 	}
 }
 
